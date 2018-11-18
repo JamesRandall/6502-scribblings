@@ -1,5 +1,6 @@
 \ Simple example illustrating use of BeebAsm
 
+mode2linesize = &280
 oswrch = &FFEE
 osasci = &FFE3
 blockaddr = &70
@@ -10,8 +11,6 @@ ORG &2000         ; code origin (like P%=&2000)
 
 .start
     JSR mode2
-    \LDA #screen MOD 256:STA addr
-    \LDA #screen DIV 256:STA addr+1
 .renderloop
     LDA #3
     LDX #2
@@ -37,6 +36,7 @@ ORG &2000         ; code origin (like P%=&2000)
 
     \ x - gridx, y - gridy, a - colour
 .drawblock
+{
     PHA
     JSR calculateblockaddress
     PLA
@@ -48,6 +48,7 @@ ORG &2000         ; code origin (like P%=&2000)
     BNE loop
 .finished
     RTS
+}
     
 
 .mode2
@@ -61,7 +62,8 @@ ORG &2000         ; code origin (like P%=&2000)
 \ we then
 \ 1. start at the top left
 \ 2. for each row we add on &ff, &ff, &80
-.calculateblockaddress 
+.calculateblockaddress
+{
     \ go to the top left
     LDA #&00:STA blockaddr
     LDA #&30:STA blockaddr+1
@@ -69,8 +71,8 @@ ORG &2000         ; code origin (like P%=&2000)
     STX xscratch
     LDY #0
     CPY xscratch
-    BEQ blockaddressrowloopouter
-.blockaddresscolumnloop
+    BEQ rowposition
+.columnloop
     LDA blockaddr
     ADC #&10
     STA blockaddr
@@ -79,33 +81,26 @@ ORG &2000         ; code origin (like P%=&2000)
 .blockaddresscolumnloopinc
     INY
     CPY xscratch
-    BNE blockaddresscolumnloop
-.blockaddressrowloopouter
+    BNE columnloop
+.rowposition
+    CLC
     LDX #0
     CPX yscratch
     BEQ anddone
-.blockaddresscolumnloopinner
+.rowloop
     LDA blockaddr
-    ADC #&FF
-    BCC skip1
-    INC blockaddr+1
-.skip1
-    ADC #&FF
-    BCC skip2
-    INC blockaddr+1
-.skip2
-    ADC #&80
-    BCC skip3
-    INC blockaddr+1
-.skip3
+    ADC #mode2linesize MOD 256
     STA blockaddr
+    LDA blockaddr + 1
+    ADC #mode2linesize DIV 256
+    STA blockaddr + 1
     INX
     CPX yscratch
-    BNE blockaddresscolumnloopinner
+    BNE rowloop
 .anddone
     RTS
+}
 
-.red EQUB 255
 .end
 
 SAVE "Main", start, end
