@@ -64,7 +64,7 @@ ORG &2000         ; code origin (like P%=&2000)
 \ 2. for each row we add on &ff, &ff, &80
 .calculateblockaddress
 {
-    \ go to the top left
+    \ go to the top left of screen memory
     LDA #&00:STA blockaddr
     LDA #&30:STA blockaddr+1
     STY yscratch
@@ -72,21 +72,24 @@ ORG &2000         ; code origin (like P%=&2000)
     LDY #0
     CPY xscratch
     BEQ rowposition
+    \ for each column move us across by adding 16 bytes to our screen address (one of our blocks is 16 bytes wide)
 .columnloop
+    CLC
     LDA blockaddr
     ADC #&10
     STA blockaddr
-    BCC blockaddresscolumnloopinc
+    BCC carryflagclear
     INC blockaddr+1
-.blockaddresscolumnloopinc
+.carryflagclear
     INY
     CPY xscratch
     BNE columnloop
+    \ for each row add on &280 bytes - the size of a mode 2 line
 .rowposition
     CLC
     LDX #0
     CPX yscratch
-    BEQ anddone
+    BEQ done
 .rowloop
     LDA blockaddr
     ADC #mode2linesize MOD 256
@@ -97,7 +100,7 @@ ORG &2000         ; code origin (like P%=&2000)
     INX
     CPX yscratch
     BNE rowloop
-.anddone
+.done
     RTS
 }
 
