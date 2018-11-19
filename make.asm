@@ -1,5 +1,6 @@
 oswrch = &FFEE
 osasci = &FFE3
+osbyte = &FFF4
 blockaddr = &70
 xscratch = blockaddr+2
 yscratch = xscratch+1
@@ -7,6 +8,8 @@ gridx = &1800
 gridy = &1801
 currentshapex = &1802
 currentshapey = &1803
+framecounter = &1804
+pitredrawneeded = &1805
 
 ORG &2000         ; code origin (like P%=&2000)
 

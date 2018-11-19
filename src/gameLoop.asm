@@ -1,9 +1,17 @@
     LDX #0
+    LDY #0
     STX currentshapex
-    STX currentshapey
+    STY currentshapey
+    LDA #1
+    STA pitredrawneeded
 
 .gameloop
+    JSR fx19 \ wait for v sync, 50 times a second
+    LDA pitredrawneeded
+    CMP #1
+    BNE skippitredraw
     LDA #0
+    STA pitredrawneeded
     STA gridx
     STA gridy
 {
@@ -34,8 +42,25 @@
         JMP rowloop
     .pitrenderingcomplete
 }
+.skippitredraw
+    JSR erasecurrentshape
+    JSR updateframe
     JSR drawcurrentshape
     JMP gameloop
+
+.updateframe
+{
+    INC framecounter
+    LDA framecounter
+    CMP #25 \ 0.5 second
+    BNE skipframeupdate
+    LDA #0
+    STA framecounter
+    INC currentshapey
+.skipframeupdate
+    RTS
+}
+
 
 \ gets the block color from the pit from the gridx and gridy memory
 \ locations
@@ -75,13 +100,14 @@
         JSR drawblock
     .skipdrawingblock
         INC currentshapeoffset
-        CPX #3
+        LDX currentshapeoffset
+        CPX #4
         BEQ incrow
-        CPX #7
+        CPX #8
         BEQ incrow
-        CPX #11
+        CPX #12
         BEQ incrow
-        CPX #15
+        CPX #16
         BEQ donecurrentshape            
         INC gridx
         JMP columninner
@@ -112,13 +138,14 @@
         JSR drawblock
     .skiperasingblock
         INC currentshapeoffset
-        CPX #3
+        LDX currentshapeoffset
+        CPX #4
         BEQ incrow
-        CPX #7
+        CPX #8
         BEQ incrow
         CPX #11
         BEQ incrow
-        CPX #15
+        CPX #16
         BEQ donecurrentshape            
         INC gridx
         JMP columninner

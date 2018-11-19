@@ -1,2 +1,3 @@
 .start
-    JSR mode2    
+    JSR mode2
+    JSR hidecursor
