@@ -1,0 +1,2 @@
+.start
+    JSR mode2    
