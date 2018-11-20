@@ -18,8 +18,10 @@ INCLUDE "src\init.asm"
 INCLUDE "src\gameLoop.asm"
 
 \ sub routines - order unimportant
-INCLUDE "src\tetrisBlocks.asm"
+INCLUDE "src\drawSquare.asm"
 INCLUDE "src\utils.asm"
+INCLUDE "src\tetrisBlocks.asm"
+INCLUDE "src\pit.asm"
 
 .end
 SAVE "Main", start, end
